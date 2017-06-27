@@ -1,4 +1,4 @@
-import * as Fatina from 'Fatina';
+import * as Fatina from 'fatina';
 import * as test from 'tape';
 import { Test } from 'tape';
 import * as animator from '../src/index';
