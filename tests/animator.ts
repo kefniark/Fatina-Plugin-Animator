@@ -99,7 +99,25 @@ test('[Fatina.Animator] Use animation', (t: Test) => {
 	t.equal(completed, 5, 'check the were all completed');
 	t.equal(sprite.position.x, -7, 'check the final position');
 
+	t.throws(() => anim.Play('unknown'));
 	anim.StopAll();
+
+	t.end();
+});
+
+test('[Fatina.Animator] Default Test', (t: Test) => {
+	const sprite: any = GetSprite('testFinalValues');
+	const anim = animatorPlugin.AnimatorManager.AddAnimatorTo(sprite)
+		.AddCustomAnimation('test', undefined, Fatina.Tween(sprite.position, ['x']).To({ x: 1}, 500));
+
+	anim.Play('test');
+	Fatina.Update(50);
+	anim.Pause();
+	anim.Resume();
+	Fatina.Update(50);
+	anim.Stop();
+
+	t.equal(sprite.position.x, 0.2);
 	t.end();
 });
 
@@ -249,20 +267,80 @@ test('[Fatina.Animator] Test Double Animation', (t: Test) => {
 test('[Fatina.Animator] Test Transition', (t: Test) => {
 	animatorPlugin.AnimatorManager.Register('move', (obj: any, params: any) => {
 		return Fatina.Tween(obj.position, ['x']).SetRelative(true).To({ x: params }, 500);
-	});
+	}, 'newTicker');
 
 	const sprite1: any = GetSprite('testTransition');
 	const anim1 = animatorPlugin.AnimatorManager.AddAnimatorTo(sprite1)
+		.AddAnimation('moveRight', 'move', { group: 'move', next: 'moveLeft' }, 5)
+		.AddAnimation('moveLeft', 'move', { group: 'move' }, -5)
+		.OnStartAll('moveRight', () => console.log('right start', sprite1.position))
+		.OnCompleteAll('moveRight', () => console.log('right complete', sprite1.position))
+		.OnStartAll('moveLeft', () => console.log('left start', sprite1.position))
+		.OnCompleteAll('moveLeft', () => console.log('left complete', sprite1.position));
+
+	anim1.Play('moveRight');
+	Fatina.Update(50);
+	t.notEqual(sprite1.position.x, 0);
+	Fatina.Update(500);
+	t.equal(sprite1.position.x, 5)
+
+	Fatina.Update(500);
+	t.equal(sprite1.position.x, 0, 'check the final position');
+
+	t.end();
+});
+
+test('[Fatina.Animator] Add Callback', (t: Test) => {
+	animatorPlugin.AnimatorManager.Register('move', (obj: any, params: any) => {
+		return Fatina.Tween(obj.position, ['x']).SetRelative(true).To({ x: params }, 500);
+	});
+
+	let onStartRight = 0;
+	let onStartRightOnce = 0;
+	let onCompleteInline = 0;
+	let onCompleteRight = 0;
+	let onCompleteRightOnce = 0;
+	const sprite1: any = GetSprite('testCallback');
+	const anim1 = animatorPlugin.AnimatorManager.AddAnimatorTo(sprite1)
 		.AddAnimation('moveRight', 'move', { group: 'move' }, 5)
 		.AddAnimation('moveLeft', 'move', { group: 'move' }, -5)
-		.AddTransition('moveLeft', 'moveRight');
+		.OnStartAll('moveRight', () => onStartRight++)
+		.OnStartAll('moveRight', () => onStartRight++)
+		.OnStart('moveRight', () => onStartRightOnce++)
+		.OnStart('moveRight', () => onStartRightOnce++)
+		.OnCompleteAll('moveRight', () => onCompleteRight++)
+		.OnCompleteAll('moveRight', () => onCompleteRight++)
+		.OnComplete('moveRight', () => {
+			throw new Error();
+		})
+		.OnComplete('moveRight', () => onCompleteRightOnce++)
+		.OnComplete('moveRight', () => onCompleteRightOnce++)
 
-	anim1.Play('moveLeft');
+	anim1.Play('moveRight', () => onCompleteInline++);
 	Fatina.Update(50);
-	t.notEqual(sprite1.position.x, 0, 'check the final position');
+	t.equal(onStartRight, 2);
+	t.equal(onStartRightOnce, 2);
 
-	Fatina.Update(1000);
-	// t.equal(sprite1.position.x, 0, 'check the final position');
+	Fatina.Update(500);
+	t.equal(onStartRight, 2);
+	t.equal(onStartRightOnce, 2);
+	t.equal(onCompleteInline, 1);
+	t.equal(onCompleteRight, 2);
+	t.equal(onCompleteRightOnce, 2);
+
+	anim1.Play('moveRight');
+	Fatina.Update(600);
+
+	t.equal(onStartRight, 4);
+	t.equal(onStartRightOnce, 2);
+	t.equal(onCompleteInline, 1);
+	t.equal(onCompleteRight, 4);
+	t.equal(onCompleteRightOnce, 2);
+
+	anim1.Play('moveRight', () => onCompleteInline++);
+	Fatina.Update(300);
+	anim1.Destroy();
+	t.equal(onCompleteInline, 2);
 
 	t.end();
 });

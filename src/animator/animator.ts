@@ -5,6 +5,7 @@ export interface IAnimationParams {
 	group?: string;
 	unstoppable?: boolean;
 	finalValue?: boolean;
+	next?: string
 }
 
 /**
@@ -20,11 +21,17 @@ export class Animator {
 	public layers = ['default'];
 
 	private object: any;
+
 	private animatorManager: AnimatorManager;
 	private animGroupMap: { [id: string]: string } = {};
 	private animTransitionMap: { [id: string]: string } = {};
 	private animFinalValueMap: { [id: string]: boolean } = {};
 	private animUnstoppableMap: { [id: string]: boolean } = {};
+
+	private eventStart: { [id: string]: {(): void}[] } = {};
+	private eventOnceStart: { [id: string]: {(): void}[] } = {};
+	private eventComplete: { [id: string]: {(): void}[] } = {};
+	private eventOnceComplete: { [id: string]: {(): void}[] } = {};
 	private currentAnimName: { [id: string]: string } = {};
 
 	constructor(obj: any, animatorManager: AnimatorManager) {
@@ -32,27 +39,56 @@ export class Animator {
 		this.animatorManager = animatorManager;
 	}
 
+	/**
+	 * Add a new Animation to this object
+	 *
+	 * @param {string} name
+	 * @param {string} animationName
+	 * @param {(IAnimationParams | any)} [options]
+	 * @param {*} [params]
+	 * @returns {Animator}
+	 * @memberOf Animator
+	 */
 	public AddAnimation(name: string, animationName: string, options?: IAnimationParams | any, params?: any): Animator {
 		const anim: any = this.animatorManager.Instantiate(animationName, this.object, params);
 		return this.AddCustomAnimation(name, options || {}, anim);
 	}
 
-	public AddTransition(name1: string, name2: string): Animator {
-		if (!(name1 in this.animations)) {
-			throw new Error('this animation doesnt exist ' + name1);
-		}
-		if (!(name2 in this.animations)) {
-			throw new Error('this animation doesnt exist ' + name2);
-		}
-		this.animTransitionMap[name1] = name2;
-		return this;
-	}
-
+	/**
+	 * Add a new Tween to this object
+	 *
+	 * @param {string} name
+	 * @param {(IAnimationParams | any)} options
+	 * @param {IControl} tween
+	 * @returns {Animator}
+	 * @memberOf Animator
+	 */
 	public AddCustomAnimation(name: string, options: IAnimationParams | any, tween: IControl): Animator {
 		const anim: any = tween;
-		anim.OnKilled(() => anim.Recycle());
+		anim.OnStart(() => {
+			this.EmitEvent(this.eventStart[name]);
+			if (name in this.eventOnceStart) {
+				this.EmitEvent(this.eventOnceStart[name])
+				this.eventOnceStart[name] = [];
+			}
+		});
+		anim.OnKilled(() => {
+			anim.Recycle();
+			this.EmitEvent(this.eventComplete[name])
+			if (name in this.eventOnceComplete) {
+				this.EmitEvent(this.eventOnceComplete[name])
+				this.eventOnceComplete[name] = [];
+			}
+		});
 		anim.OnComplete(() => {
 			anim.Recycle();
+
+			this.EmitEvent(this.eventComplete[name])
+			if (name in this.eventOnceComplete) {
+				this.EmitEvent(this.eventOnceComplete[name])
+				this.eventOnceComplete[name] = [];
+			}
+
 			if (name in this.animTransitionMap) {
 				this.Play(this.animTransitionMap[name]);
 			}
@@ -62,13 +98,72 @@ export class Animator {
 		this.animFinalValueMap[name] = options ? !!options.finalValue : false;
 		this.animUnstoppableMap[name] = options ? !!options.unstoppable : false;
 		this.animGroupMap[name] = (options && options.group) ? options.group : 'default';
+		if (options && options.next) {
+			this.animTransitionMap[name] = options.next;
+		}
+
 		if (this.layers.indexOf(this.animGroupMap[name]) === -1) {
 			this.layers.push(this.animGroupMap[name]);
+		}
+
+		return this;
+	}
+
+	private Emit(func: any, args: any) {
+		try {
+			func.apply(this, args);
+		} catch (e) {
+			console.warn(e);
+		}
+	}
+
+	protected EmitEvent(listeners: any, args?: any) {
+		if (!listeners) {
+			return;
+		}
+
+		for (let i = 0; i < listeners.length; i++) {
+			this.Emit(listeners[i], args);
+		}
+	}
+
+	public OnStartAll(name: string, cb: () => void): Animator {
+		if (name in this.eventStart) {
+			this.eventStart[name].push(cb);
+		} else {
+			this.eventStart[name] = [cb];
 		}
 		return this;
 	}
 
-	public Play(name: string): IControl {
+	public OnStart(name: string, cb: () => void): Animator {
+		if (name in this.eventOnceStart) {
+			this.eventOnceStart[name].push(cb);
+		} else {
+			this.eventOnceStart[name] = [cb];
+		}
+		return this;
+	}
+
+	public OnCompleteAll(name: string, cb: () => void): Animator {
+		if (name in this.eventComplete) {
+			this.eventComplete[name].push(cb);
+		} else {
+			this.eventComplete[name] = [cb];
+		}
+		return this;
+	}
+
+	public OnComplete(name: string, cb: () => void): Animator {
+		if (name in this.eventOnceComplete) {
+			this.eventOnceComplete[name].push(cb);
+		} else {
+			this.eventOnceComplete[name] = [cb];
+		}
+		return this;
+	}
+
+	public Play(name: string, onComplete?: () => void): void {
 		if (!(name in this.animations)) {
 			throw new Error('this animation doesnt exist ' + name);
 		}
@@ -79,7 +174,7 @@ export class Animator {
 		// Block any unstoppable running anim
 		if (current && current.IsRunning() && this.animUnstoppableMap[this.currentAnimName[layerName]]) {
 			console.log('This animation already run and is unstoppable', this.currentAnimName[layerName], '->', name);
-			return current;
+			return;
 		}
 
 		// Stop any previous animation on this layer
@@ -93,8 +188,13 @@ export class Animator {
 		current = this.animations[name];
 		this.current[layerName] = current;
 		this.currentAnimName[layerName] = name;
+
+		if (onComplete) {
+			this.OnComplete(name, onComplete);
+		}
+
 		current.Start();
-		return current;
+		return;
 	}
 
 	public Pause(layer?: string): void {

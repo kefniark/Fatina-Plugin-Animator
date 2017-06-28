@@ -1,7 +1,7 @@
 {
   "name": "fatina-plugin-animator",
   "description": "Fatina plugin to manage animations for 2d library like Pixi.js, Phaser, ...",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "homepage": "https://kefniark.github.io/Fatina-Plugin-Animator/",
   "main": "build/fatina-plugin-animator.min.js",
   "types": "build/fatina-plugin-animator.d.ts",
