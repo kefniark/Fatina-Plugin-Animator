@@ -7,10 +7,10 @@
   "types": "build/fatina-plugin-animator.d.ts",
   "repository": {
     "type": "git",
-    "url": "git@github.com:kefniark/Fatina.git"
+    "url": "git@github.com:kefniark/Fatina-Plugin-Animator.git"
   },
   "bugs": {
-    "url": "https://github.com/kefniark/Fatina/issues"
+    "url": "https://github.com/kefniark/Fatina-Plugin-Animator/issues"
   },
   "license": "MIT",
   "keywords": [
@@ -46,21 +46,21 @@
     "coveralls": "nyc --all --reporter=text-lcov npm run test:unittest | coveralls"
   },
   "devDependencies": {
-    "@types/node": "^8.0.1",
-    "@types/tape": "^4.2.30",
+    "@types/node": "8.0.5",
+    "@types/tape": "4.2.30",
     "coveralls": "2.13.1",
-    "dts-bundle": "0.7.2",
-    "fatina": "^0.3.0",
+    "dts-bundle": "0.7.3",
+    "fatina": "0.3.0",
     "npm-run-all": "4.0.2",
-    "nyc": "^11.0.2",
+    "nyc": "11.0.3",
     "rimraf": "2.6.1",
     "tap-spec": "4.1.1",
-    "tape": "^4.6.3",
-    "ts-loader": "^2.2.0",
-    "ts-node": "^3.1.0",
-    "tslint": "^5.4.3",
-    "typedoc": "^0.7.1",
-    "typescript": "^2.4.0",
+    "tape": "4.7.0",
+    "ts-loader": "2.2.1",
+    "ts-node": "3.1.0",
+    "tslint": "5.4.3",
+    "typedoc": "0.7.1",
+    "typescript": "2.4.1",
     "webpack": "3.0.0"
   },
   "nyc": {
