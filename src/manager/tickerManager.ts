@@ -1,6 +1,12 @@
 import { ITicker } from 'fatina';
 import { IPluginAnimator } from '../index';
 
+/**
+ * This manager is just there to keep reference to ticker by name
+ *
+ * @export
+ * @class TickerManager
+ */
 export class TickerManager {
 	private plugin: IPluginAnimator;
 	private tickers: { [id: string]: ITicker } = {};

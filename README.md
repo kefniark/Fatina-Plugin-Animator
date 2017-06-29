@@ -15,7 +15,7 @@ Small & Light tweening library for **Games** / **Web**
 [![License](https://img.shields.io/npm/l/fatina-plugin-animator.svg)](https://npmjs.org/package/fatina-plugin-animator)
 
 ## Description
-This plugin provide tools to manage and use animations in html5 games any library (pixi, phaser, ...)
+This plugin provide tools to manage and use animations in **html5** games any library (pixi, phaser, ...)
 
 This is split in two parts:
 * AnimationManager: use to store/instantiate animations and manage tickers
@@ -25,4 +25,30 @@ This is split in two parts:
 
 ## Getting Started
 
-Coming Soon ...
+### Install
+If you use directly the minified version
+```ts
+<script src="fatina-plugin-animator.min.js"></script>
+```
+Or if you use NPM
+```ts
+> npm install fatina-plugin-animator
+```
+
+### Init
+```ts
+// standard node.js require
+var FatinaPluginAnimator = require('fatina-plugin-animator');
+// OR
+// standard import with typescript (typed version)
+import * as FatinaPluginAnimator from 'fatina-plugin-animator';
+```
+
+and initialize (add this plugin to **Fatina**)
+```ts
+Fatina.Init();
+Fatina.LoadPlugin(FatinaPluginAnimator.Get());
+```
+
+* [Documentation](https://kefniark.github.io/Fatina/plugins/animator-api/)
+* [Samples](https://kefniark.github.io/Fatina/plugins/animator/)

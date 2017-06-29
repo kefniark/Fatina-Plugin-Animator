@@ -2,6 +2,12 @@ import { IControl} from 'fatina';
 import { Animator } from '../animator/animator';
 import { FatinaPluginAnimator } from '../index';
 
+/**
+ * This manager is there to store shared animations and instantiate them
+ *
+ * @export
+ * @class AnimatorManager
+ */
 export class AnimatorManager {
 	private plugin: FatinaPluginAnimator;
 	private animations: { [id: string]: (object: any, params?: any) => IControl; } = {};
@@ -19,13 +25,23 @@ export class AnimatorManager {
 		this.plugin = plugin;
 	}
 
-	public Register(name: string, onCreate: (object: any, params?: any) => IControl, label?: string): AnimatorManager {
+	/**
+	 * Method used to register a new animation
+	 *
+	 * @param {string} name
+	 * @param {(object: any, params?: any) => IControl} onCreate
+	 * @param {string} [tickerName]
+	 * @returns {AnimatorManager}
+	 *
+	 * @memberOf AnimatorManager
+	 */
+	public Register(name: string, onCreate: (object: any, params?: any) => IControl, tickerName?: string): AnimatorManager {
 		if (this.animations[name] && this.tickerMap[name]) {
 			delete this.tickerMap[name];
 		}
 		this.animations[name] = onCreate;
-		if (label) {
-			this.tickerMap[name] = label;
+		if (tickerName) {
+			this.tickerMap[name] = tickerName;
 		}
 		return this;
 	}
@@ -43,6 +59,14 @@ export class AnimatorManager {
 		return tween;
 	}
 
+	/**
+	 * Method used to add a component animator to any object
+	 *
+	 * @param {*} obj
+	 * @returns {Animator}
+	 *
+	 * @memberOf AnimatorManager
+	 */
 	public AddAnimatorTo(obj: any): Animator {
 		if (!obj.Animator) {
 			obj.Animator = new Animator(obj, this);

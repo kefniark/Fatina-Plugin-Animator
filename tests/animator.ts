@@ -19,6 +19,8 @@ test('[Fatina.Animator] Test Init', (t: Test) => {
 	};
 	const plugin = animator.Get();
 
+	t.throws(() => plugin.Init(undefined), 'Check the plugin cant be init without fatina');
+
 	plugin.Init(fatinaObj);
 
 	t.notEqual((plugin as any).TickerManager, undefined);
@@ -72,6 +74,8 @@ test('[Fatina.Animator] Use animation', (t: Test) => {
 		.AddAnimation('moveLeft', 'move', { group: 'move' }, -5)
 		.AddAnimation('blink', 'blink', { finalValue: true})
 		.AddAnimation('blinkSkipable', 'blink');
+
+	t.throws(() => anim.AddAnimation('test', 'shouldcrash'));
 
 	// Use it
 	anim.Play('moveLeft');

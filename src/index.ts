@@ -13,7 +13,7 @@ export interface IPluginAnimator {
 
 export class FatinaPluginAnimator implements IPlugin {
 	public readonly name = 'fatina-plugin-animator';
-	public fatina: any;
+	private fatina: any;
 	private init = false;
 
 	public get TickerManager() {

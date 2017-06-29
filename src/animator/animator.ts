@@ -16,23 +16,25 @@ export interface IAnimationParams {
  * @class Animator
  */
 export class Animator {
+	// public properties
 	public animations: { [id: string]: IControl; } = {};
 	public current: { [id: string]: IControl | undefined } = {};
-	public layers = ['default'];
+	public groups = ['default'];
 
+	// private properties
 	private object: any;
-
+	private currentAnimName: { [id: string]: string } = {};
 	private animatorManager: AnimatorManager;
 	private animGroupMap: { [id: string]: string } = {};
 	private animTransitionMap: { [id: string]: string } = {};
 	private animFinalValueMap: { [id: string]: boolean } = {};
 	private animUnstoppableMap: { [id: string]: boolean } = {};
 
+	// events
 	private eventStart: { [id: string]: {(): void}[] } = {};
 	private eventOnceStart: { [id: string]: {(): void}[] } = {};
 	private eventComplete: { [id: string]: {(): void}[] } = {};
 	private eventOnceComplete: { [id: string]: {(): void}[] } = {};
-	private currentAnimName: { [id: string]: string } = {};
 
 	constructor(obj: any, animatorManager: AnimatorManager) {
 		this.object = obj;
@@ -102,8 +104,8 @@ export class Animator {
 			this.animTransitionMap[name] = options.next;
 		}
 
-		if (this.layers.indexOf(this.animGroupMap[name]) === -1) {
-			this.layers.push(this.animGroupMap[name]);
+		if (this.groups.indexOf(this.animGroupMap[name]) === -1) {
+			this.groups.push(this.animGroupMap[name]);
 		}
 
 		return this;
@@ -117,7 +119,7 @@ export class Animator {
 		}
 	}
 
-	protected EmitEvent(listeners: any, args?: any) {
+	private EmitEvent(listeners: any, args?: any) {
 		if (!listeners) {
 			return;
 		}
@@ -163,6 +165,15 @@ export class Animator {
 		return this;
 	}
 
+	/**
+	 * Method used to play an animation
+	 *
+	 * @param {string} name
+	 * @param {() => void} [onComplete]
+	 * @returns {void}
+	 *
+	 * @memberOf Animator
+	 */
 	public Play(name: string, onComplete?: () => void): void {
 		if (!(name in this.animations)) {
 			throw new Error('this animation doesnt exist ' + name);
@@ -197,8 +208,8 @@ export class Animator {
 		return;
 	}
 
-	public Pause(layer?: string): void {
-		const layerName = !layer ? 'default' : layer;
+	public Pause(group?: string): void {
+		const layerName = !group ? 'default' : group;
 		const current = this.current[layerName];
 		if (current && current.IsRunning()) {
 			current.Pause();
@@ -206,13 +217,13 @@ export class Animator {
 	}
 
 	public PauseAll() {
-		for (const layerId of this.layers) {
+		for (const layerId of this.groups) {
 			this.Pause(layerId);
 		}
 	}
 
-	public Resume(layer?: string): void {
-		const layerName = !layer ? 'default' : layer;
+	public Resume(group?: string): void {
+		const layerName = !group ? 'default' : group;
 		const current = this.current[layerName];
 		if (current && current.IsPaused()) {
 			current.Resume();
@@ -220,13 +231,13 @@ export class Animator {
 	}
 
 	public ResumeAll() {
-		for (const layerId of this.layers) {
+		for (const layerId of this.groups) {
 			this.Resume(layerId);
 		}
 	}
 
-	public Stop(layer?: string): void {
-		const layerName = !layer ? 'default' : layer;
+	public Stop(group?: string): void {
+		const layerName = !group ? 'default' : group;
 		const current = this.current[layerName];
 		if (current && !current.IsFinished()) {
 			const currentAnimName = this.currentAnimName[layerName];
@@ -236,13 +247,18 @@ export class Animator {
 	}
 
 	public StopAll() {
-		for (const layerId of this.layers) {
+		for (const layerId of this.groups) {
 			this.Stop(layerId);
 		}
 	}
 
+	/**
+	 * Used to destroy this animation and stop all the tweens
+	 *
+	 * @memberOf Animator
+	 */
 	public Destroy() {
-		for (const layerId of this.layers) {
+		for (const layerId of this.groups) {
 			const current = this.current[layerId];
 			if (current && !current.IsFinished()) {
 				current.Kill();
