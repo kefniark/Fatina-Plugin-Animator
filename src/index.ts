@@ -1,6 +1,9 @@
-import { IPlugin } from 'fatina';
+import { IPlugin, IControl } from 'fatina';
 import { AnimatorManager } from './manager/animatorManager';
 import { TickerManager } from './manager/tickerManager';
+
+// tslint:disable-next-line:no-var-requires
+const stats = require('stats.js');
 
 export function Get(): IPlugin {
 	return new FatinaPluginAnimator();
@@ -15,6 +18,9 @@ export class FatinaPluginAnimator implements IPlugin {
 	public readonly name = 'fatina-plugin-animator';
 	private fatina: any;
 	private init = false;
+	private statPanel: any;
+	private counter = 0;
+	private running = 0;
 
 	public get TickerManager() {
 		return this.fatina.plugin.TickerManager;
@@ -37,5 +43,19 @@ export class FatinaPluginAnimator implements IPlugin {
 		this.init = true;
 		fatina.plugin.AnimatorManager = new AnimatorManager(this);
 		fatina.plugin.TickerManager = new TickerManager(this);
+
+		fatina.plugin.StatPanel = new stats.Panel( 'Tweens', '#ff8', '#221' );
+
+		fatina.AddListenerCreated((tween: any) => {
+			tween.OnStart(() => this.running++);
+			tween.OnComplete(() => this.running--);
+			tween.OnKilled(() => this.running--);
+			this.counter++;
+		});
+
+		fatina.SetInterval(() => {
+			fatina.plugin.StatPanel.update( 'instantiate', this.counter );
+			fatina.plugin.StatPanel.update( 'running', this.running );
+		}, 16);
 	}
 }

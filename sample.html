@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+    <head>
+	    <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Fatina Sample</title>
+
+        <script src="./node_modules/fatina/build/fatina.js"></script>
+        <script src="./build/fatina-plugin-animator.js"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/flatly/bootstrap.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/4.5.2/pixi.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/stats.js/r16/Stats.min.js"></script>
+    </head>
+    <body>
+        <div id="canvas1"></div>
+        <script>
+            var app = new PIXI.Application(1024 / 2, 768 / 2, {backgroundColor : 0x0c243c});
+            document.getElementById('canvas1').appendChild(app.view);
+
+            Fatina.Init();
+            Fatina.LoadPlugin(FatinaPluginAnimator.Get());
+
+            window.onload = function(e) {
+                console.log("window loaded");
+                var stats = new Stats();
+                stats.showPanel( 1 );
+                stats.addPanel( Fatina.plugin.StatPanel );
+                document.body.appendChild( stats.domElement );
+
+                function animate() {
+                    stats.begin();
+
+                    stats.end();
+                    requestAnimationFrame( animate );
+                }
+                animate();
+            };
+
+            setTimeout(function() {
+               Fatina.Tween({}, []).To({}, 5).SetLoop(-1).Start();
+                Fatina.Tween({}, []).To({}, 5).SetLoop(-1).Start();
+                Fatina.Tween({}, []).To({}, 5).SetLoop(-1).Start();
+                Fatina.Tween({}, []).To({}, 5).SetLoop(-1).Start();
+                Fatina.Tween({}, []).To({}, 5).SetLoop(-1).Start();
+                Fatina.Tween({}, []).To({}, 5).SetLoop(-1).Start();
+                Fatina.Tween({}, []).To({}, 5).SetLoop(-1).Start();
+                Fatina.Tween({}, []).To({}, 5).SetLoop(-1).Start();
+            }, 500);
+        </script>
+    </body>
+</html>

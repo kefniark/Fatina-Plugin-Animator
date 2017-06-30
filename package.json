@@ -27,7 +27,10 @@
     "name": "Kevin destrem",
     "email": "kef1@free.fr"
   },
-  "dependencies": {},
+  "dependencies": {
+    "fatina": "0.3.1",
+    "stats.js": "^0.17.0"
+  },
   "scripts": {
     "all": "npm run deps && npm run build && npm run dev",
     "deps": "npm install .",
@@ -67,8 +70,7 @@
     "include": [
       "src/**/*.ts"
     ],
-    "exclude": [
-    ],
+    "exclude": [],
     "extension": [
       ".ts"
     ]
