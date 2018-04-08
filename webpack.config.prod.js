@@ -25,33 +25,30 @@ DtsBundlePlugin.prototype.apply = function (compiler) {
 };
 
 module.exports = {
-	entry: {
-		"fatina-plugin-animator": "./src/index.ts",
-		"fatina-plugin-animator.min": "./src/index.ts"
-	},
+	mode: "production",
+	entry: "./src/index.ts",
 	output: {
 		path: path.resolve(__dirname, "build"),
-		filename: "[name].js",
+		filename: "fatina-plugin-animator.min.js",
 		library: "FatinaPluginAnimator",
 		libraryTarget: "umd",
-		umdNamedDefine: true
+		umdNamedDefine: true,
+		globalObject: "typeof self !== 'undefined' ? self : this"
 	},
 	resolve: {
 		extensions: [".ts", ".tsx", ".js"]
 	},
-	devtool: "source-map",
 	module: {
 		rules: [
-			{ test: /\.tsx?$/, loader: "ts-loader" }
+			{
+				test: /\.tsx?$/,
+				use: [
+					{ loader: "ts-loader" }
+				]
+			}
 		]
 	},
 	plugins: [
-		new webpack.optimize.ModuleConcatenationPlugin(),
-		new webpack.optimize.UglifyJsPlugin({
-			minimize: true,
-			sourceMap: true,
-			include: /\.min\.js$/
-		}),
 		new DtsBundlePlugin()
 	]
 };
