@@ -2,30 +2,30 @@ import { IPlugin } from 'fatina';
 import { AnimatorManager } from './manager/animatorManager';
 import { TickerManager } from './manager/tickerManager';
 
-export function Get(): IPlugin {
+export function get(): IPlugin {
 	return new FatinaPluginAnimator();
 }
 
 export interface IPluginAnimator {
-	AnimatorManager: AnimatorManager;
-	TickerManager: TickerManager;
+	animatorManager: AnimatorManager;
+	tickerManager: TickerManager;
 }
 
 export class FatinaPluginAnimator implements IPlugin {
 	public readonly name = 'fatina-plugin-animator';
 	private fatina: any;
-	private init = false;
+	private initialized = false;
 
-	public get TickerManager() {
-		return this.fatina.plugin.TickerManager;
+	public get tickerManager() {
+		return this.fatina.plugin.tickerManager;
 	}
 
-	public get AnimatorManager() {
-		return this.fatina.plugin.AnimatorManager;
+	public get animatorManager() {
+		return this.fatina.plugin.animatorManager;
 	}
 
-	public Init(fatina: any) {
-		if (this.init) {
+	public init(fatina: any) {
+		if (this.initialized) {
 			throw new Error('Try to init the plugin twice : ' + name);
 		}
 
@@ -34,8 +34,8 @@ export class FatinaPluginAnimator implements IPlugin {
 		}
 
 		this.fatina = fatina;
-		this.init = true;
-		fatina.plugin.AnimatorManager = new AnimatorManager(this);
-		fatina.plugin.TickerManager = new TickerManager(this);
+		this.initialized = true;
+		fatina.plugin.animatorManager = new AnimatorManager(this);
+		fatina.plugin.tickerManager = new TickerManager(this);
 	}
 }

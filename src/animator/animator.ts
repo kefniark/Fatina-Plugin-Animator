@@ -51,9 +51,9 @@ export class Animator {
 	 * @returns {Animator}
 	 * @memberOf Animator
 	 */
-	public AddAnimation(name: string, animationName: string, options?: IAnimationParams | any, params?: any): Animator {
-		const anim: any = this.animatorManager.Instantiate(animationName, this.object, params);
-		return this.AddCustomAnimation(name, options || {}, anim);
+	public addAnimation(name: string, animationName: string, options?: IAnimationParams | any, params?: any): Animator {
+		const anim: any = this.animatorManager.instantiate(animationName, this.object, params);
+		return this.addCustomAnimation(name, options || {}, anim);
 	}
 
 	/**
@@ -65,34 +65,37 @@ export class Animator {
 	 * @returns {Animator}
 	 * @memberOf Animator
 	 */
-	public AddCustomAnimation(name: string, options: IAnimationParams | any, tween: IControl): Animator {
+	public addCustomAnimation(name: string, options: IAnimationParams | any, tween: IControl): Animator {
 		const anim: any = tween;
-		anim.OnStart(() => {
-			this.EmitEvent(this.eventStart[name]);
+
+		anim.onStart(() => {
+			this.emitEvent(this.eventStart[name]);
 			if (name in this.eventOnceStart) {
-				this.EmitEvent(this.eventOnceStart[name])
+				this.emitEvent(this.eventOnceStart[name])
 				this.eventOnceStart[name] = [];
 			}
 		});
-		anim.OnKilled(() => {
-			anim.Recycle();
-			this.EmitEvent(this.eventComplete[name])
+
+		anim.onKilled(() => {
+			anim.recycle();
+			this.emitEvent(this.eventComplete[name])
 			if (name in this.eventOnceComplete) {
-				this.EmitEvent(this.eventOnceComplete[name])
+				this.emitEvent(this.eventOnceComplete[name])
 				this.eventOnceComplete[name] = [];
 			}
 		});
-		anim.OnComplete(() => {
-			anim.Recycle();
 
-			this.EmitEvent(this.eventComplete[name])
+		anim.onComplete(() => {
+			anim.recycle();
+
+			this.emitEvent(this.eventComplete[name])
 			if (name in this.eventOnceComplete) {
-				this.EmitEvent(this.eventOnceComplete[name])
+				this.emitEvent(this.eventOnceComplete[name])
 				this.eventOnceComplete[name] = [];
 			}
 
 			if (name in this.animTransitionMap) {
-				this.Play(this.animTransitionMap[name]);
+				this.play(this.animTransitionMap[name]);
 			}
 		});
 
@@ -111,7 +114,7 @@ export class Animator {
 		return this;
 	}
 
-	private Emit(func: any, args: any) {
+	private emit(func: any, args: any) {
 		try {
 			func.apply(this, args);
 		} catch (e) {
@@ -119,17 +122,17 @@ export class Animator {
 		}
 	}
 
-	private EmitEvent(listeners: any, args?: any) {
+	private emitEvent(listeners: any, args?: any) {
 		if (!listeners) {
 			return;
 		}
 
 		for (let i = 0; i < listeners.length; i++) {
-			this.Emit(listeners[i], args);
+			this.emit(listeners[i], args);
 		}
 	}
 
-	public OnStartAll(name: string, cb: () => void): Animator {
+	public onStartAll(name: string, cb: () => void): Animator {
 		if (name in this.eventStart) {
 			this.eventStart[name].push(cb);
 		} else {
@@ -138,7 +141,7 @@ export class Animator {
 		return this;
 	}
 
-	public OnStart(name: string, cb: () => void): Animator {
+	public onStart(name: string, cb: () => void): Animator {
 		if (name in this.eventOnceStart) {
 			this.eventOnceStart[name].push(cb);
 		} else {
@@ -147,7 +150,7 @@ export class Animator {
 		return this;
 	}
 
-	public OnCompleteAll(name: string, cb: () => void): Animator {
+	public onCompleteAll(name: string, cb: () => void): Animator {
 		if (name in this.eventComplete) {
 			this.eventComplete[name].push(cb);
 		} else {
@@ -156,7 +159,7 @@ export class Animator {
 		return this;
 	}
 
-	public OnComplete(name: string, cb: () => void): Animator {
+	public onComplete(name: string, cb: () => void): Animator {
 		if (name in this.eventOnceComplete) {
 			this.eventOnceComplete[name].push(cb);
 		} else {
@@ -174,7 +177,7 @@ export class Animator {
 	 *
 	 * @memberOf Animator
 	 */
-	public Play(name: string, onComplete?: () => void): void {
+	public play(name: string, onComplete?: () => void): void {
 		if (!(name in this.animations)) {
 			throw new Error('this animation doesnt exist ' + name);
 		}
@@ -183,15 +186,15 @@ export class Animator {
 		let current = this.current[layerName];
 
 		// Block any unstoppable running anim
-		if (current && current.IsRunning() && this.animUnstoppableMap[this.currentAnimName[layerName]]) {
+		if (current && current.isRunning && this.animUnstoppableMap[this.currentAnimName[layerName]]) {
 			console.log('This animation already run and is unstoppable', this.currentAnimName[layerName], '->', name);
 			return;
 		}
 
 		// Stop any previous animation on this layer
-		if (current && (current.IsRunning() || current.IsPaused())) {
+		if (current && (current.isRunning || current.isPaused)) {
 			const currentAnimName = this.currentAnimName[layerName];
-			(current as any).Skip(this.animFinalValueMap[currentAnimName]);
+			(current as any).skip(this.animFinalValueMap[currentAnimName]);
 			this.current[layerName] = undefined;
 		}
 
@@ -201,54 +204,54 @@ export class Animator {
 		this.currentAnimName[layerName] = name;
 
 		if (onComplete) {
-			this.OnComplete(name, onComplete);
+			this.onComplete(name, onComplete);
 		}
 
-		current.Start();
+		current.start();
 		return;
 	}
 
-	public Pause(group?: string): void {
+	public pause(group?: string): void {
 		const layerName = !group ? 'default' : group;
 		const current = this.current[layerName];
-		if (current && current.IsRunning()) {
-			current.Pause();
+		if (current && current.isRunning) {
+			current.pause();
 		}
 	}
 
-	public PauseAll() {
+	public pauseAll() {
 		for (const layerId of this.groups) {
-			this.Pause(layerId);
+			this.pause(layerId);
 		}
 	}
 
-	public Resume(group?: string): void {
+	public resume(group?: string): void {
 		const layerName = !group ? 'default' : group;
 		const current = this.current[layerName];
-		if (current && current.IsPaused()) {
-			current.Resume();
+		if (current && current.isPaused) {
+			current.resume();
 		}
 	}
 
-	public ResumeAll() {
+	public resumeAll() {
 		for (const layerId of this.groups) {
-			this.Resume(layerId);
+			this.resume(layerId);
 		}
 	}
 
-	public Stop(group?: string): void {
+	public stop(group?: string): void {
 		const layerName = !group ? 'default' : group;
 		const current = this.current[layerName];
-		if (current && !current.IsFinished()) {
+		if (current && !current.isFinished) {
 			const currentAnimName = this.currentAnimName[layerName];
-			(current as any).Skip(this.animFinalValueMap[currentAnimName]);
+			(current as any).skip(this.animFinalValueMap[currentAnimName]);
 			this.current[layerName] = undefined;
 		}
 	}
 
-	public StopAll() {
+	public stopAll() {
 		for (const layerId of this.groups) {
-			this.Stop(layerId);
+			this.stop(layerId);
 		}
 	}
 
@@ -257,11 +260,11 @@ export class Animator {
 	 *
 	 * @memberOf Animator
 	 */
-	public Destroy() {
+	public destroy() {
 		for (const layerId of this.groups) {
 			const current = this.current[layerId];
-			if (current && !current.IsFinished()) {
-				current.Kill();
+			if (current && !current.isFinished) {
+				current.kill();
 			}
 		}
 

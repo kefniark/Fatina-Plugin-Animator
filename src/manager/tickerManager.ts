@@ -15,30 +15,30 @@ export class TickerManager {
 		this.plugin = plugin;
 	}
 
-	public Get(name: string): ITicker {
+	public get(name: string): ITicker {
 		if (this.tickers[name]) {
 			return this.tickers[name];
 		}
 
-		this.tickers[name] = (this.plugin as any).fatina.Ticker();
+		this.tickers[name] = (this.plugin as any).fatina.ticker();
 		return this.tickers[name]
 	}
 
-	public PauseAll(name: string): void {
+	public pauseAll(name: string): void {
 		if (this.tickers[name]) {
-			this.tickers[name].Pause();
+			this.tickers[name].pause();
 		}
 	}
 
-	public ResumeAll(name: string): void {
+	public resumeAll(name: string): void {
 		if (this.tickers[name]) {
-			this.tickers[name].Resume();
+			this.tickers[name].resume();
 		}
 	}
 
-	public KillAll(name: string): void {
+	public killAll(name: string): void {
 		if (this.tickers[name]) {
-			this.tickers[name].Kill();
+			this.tickers[name].kill();
 			delete this.tickers[name];
 		}
 	}

@@ -10,14 +10,14 @@ import { FatinaPluginAnimator } from '../index';
  */
 export class AnimatorManager {
 	private plugin: FatinaPluginAnimator;
-	private animations: { [id: string]: (object: any, params?: any) => IControl; } = {};
+	private anims: { [id: string]: (object: any, params?: any) => IControl; } = {};
 	private tickerMap: { [id: string]: string; } = {};
 
-	public get Animations(): string[] {
-		return Object.keys(this.animations);
+	public get animations(): string[] {
+		return Object.keys(this.anims);
 	}
 
-	public get Labels(): string[] {
+	public get labels(): string[] {
 		return Object.keys(this.tickerMap).map((x: string) => this.tickerMap[x]).filter((piece, index, self) => self.indexOf(piece) === index);
 	}
 
@@ -35,25 +35,25 @@ export class AnimatorManager {
 	 *
 	 * @memberOf AnimatorManager
 	 */
-	public Register(name: string, onCreate: (object: any, params?: any) => IControl, tickerName?: string): AnimatorManager {
-		if (this.animations[name] && this.tickerMap[name]) {
+	public register(name: string, onCreate: (object: any, params?: any) => IControl, tickerName?: string): AnimatorManager {
+		if (this.anims[name] && this.tickerMap[name]) {
 			delete this.tickerMap[name];
 		}
-		this.animations[name] = onCreate;
+		this.anims[name] = onCreate;
 		if (tickerName) {
 			this.tickerMap[name] = tickerName;
 		}
 		return this;
 	}
 
-	public Instantiate(name: string, object: any, params?: any): IControl {
-		if (!(name in this.animations)) {
+	public instantiate(name: string, object: any, params?: any): IControl {
+		if (!(name in this.anims)) {
 			throw new Error('this animation doesnt exist ' + name);
 		}
 
-		const tween = this.animations[name](object, params);
+		const tween = this.anims[name](object, params);
 		if (this.tickerMap[name]) {
-			(tween as any).SetParent(this.plugin.TickerManager.Get(this.tickerMap[name]));
+			(tween as any).setParent(this.plugin.tickerManager.get(this.tickerMap[name]));
 		}
 
 		return tween;
@@ -67,7 +67,7 @@ export class AnimatorManager {
 	 *
 	 * @memberOf AnimatorManager
 	 */
-	public AddAnimatorTo(obj: any): Animator {
+	public addAnimatorTo(obj: any): Animator {
 		if (!obj.Animator) {
 			obj.Animator = new Animator(obj, this);
 		}

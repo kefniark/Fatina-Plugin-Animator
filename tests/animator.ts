@@ -4,8 +4,8 @@ import { Test } from 'tape';
 import * as animator from '../src/index';
 import { IPluginAnimator } from '../src/index';
 
-Fatina.Init(false);
-Fatina.LoadPlugin(animator.Get());
+Fatina.init(false);
+Fatina.loadPlugin(animator.get());
 
 const animatorPlugin = Fatina.plugin as IPluginAnimator;
 
@@ -17,37 +17,37 @@ test('[Fatina.Animator] Test Init', (t: Test) => {
 	const fatinaObj: any = {
 		plugin: {}
 	};
-	const plugin = animator.Get();
+	const plugin = animator.get();
 
-	t.throws(() => plugin.Init(undefined), 'Check the plugin cant be init without fatina');
+	t.throws(() => plugin.init(undefined), 'Check the plugin cant be init without fatina');
 
-	plugin.Init(fatinaObj);
+	plugin.init(fatinaObj);
 
-	t.notEqual((plugin as any).TickerManager, undefined);
-	t.notEqual((plugin as any).AnimatorManager, undefined);
-	t.throws(() => plugin.Init(fatinaObj), 'Check the plugin cant be init twice');
+	t.notEqual((plugin as any).tickerManager, undefined);
+	t.notEqual((plugin as any).animatorManager, undefined);
+	t.throws(() => plugin.init(fatinaObj), 'Check the plugin cant be init twice');
 
 	t.end();
 });
 
 test ('[Fatina.Animator] Register new animations', (t: Test) => {
 	// Register animations
-	animatorPlugin.AnimatorManager
-		.Register('move', (obj: any, params: any) => Fatina.Tween(obj, ['x']).To({ x: 2 }, 500))
-		.Register('jump', (obj: any, params: any) => {
-			return Fatina.Sequence()
-				.Append(Fatina.Tween(obj.position, ['y']).SetRelative(true).To({y: 5}, 200).SetEasing('inQuad'))
-				.Append(Fatina.Tween(obj.position, ['y']).To({y: 0}, 200).SetEasing('outQuad'));
+	animatorPlugin.animatorManager
+		.register('move', (obj: any) => Fatina.tween(obj, ['x']).to({ x: 2 }, 500))
+		.register('jump', (obj: any) => {
+			return Fatina.sequence()
+				.append(Fatina.tween(obj.position, ['y']).setRelative(true).to({y: 5}, 200).setEasing('inQuad'))
+				.append(Fatina.tween(obj.position, ['y']).to({y: 0}, 200).setEasing('outQuad'));
 			})
-		.Register('blink', (obj: any, params: any) => {
-			return Fatina.Tween(obj, ['alpha']).To({alpha: 0}, 100).Yoyo(3).SetEasing('inOutSine');
+		.register('blink', (obj: any) => {
+			return Fatina.tween(obj, ['alpha']).to({alpha: 0}, 100).yoyo(3).setEasing('inOutSine');
 		}, 'alpha')
-		.Register('fade', (obj: any, params: any) => {
-			return Fatina.Tween(obj, ['alpha']).To({alpha: params}, 250).SetEasing('outQuad');
+		.register('fade', (obj: any, params: any) => {
+			return Fatina.tween(obj, ['alpha']).to({alpha: params}, 250).setEasing('outQuad');
 		}, 'alpha');
 
-	t.equal(animatorPlugin.AnimatorManager.Animations.length, 4, 'check all the animations are registered');
-	t.equal(animatorPlugin.AnimatorManager.Labels.length, 1, 'check there is one label registered');
+	t.equal(animatorPlugin.animatorManager.animations.length, 4, 'check all the animations are registered');
+	t.equal(animatorPlugin.animatorManager.labels.length, 1, 'check there is one label registered');
 
 	t.end();
 });
@@ -59,67 +59,67 @@ test('[Fatina.Animator] Use animation', (t: Test) => {
 	let completed = 0;
 
 	// overwrite the previous move animation
-	animatorPlugin.AnimatorManager.Register('move', (obj: any, params: any) => {
-		return Fatina.Tween(obj.position, ['x']).SetRelative(true).To({ x: params }, 500)
-			.OnStart(() => started++)
-			.OnUpdate(() => updated++)
-			.OnKilled(() => killed++)
-			.OnComplete(() => completed++);
+	animatorPlugin.animatorManager.register('move', (obj: any, params: any) => {
+		return Fatina.tween(obj.position, ['x']).setRelative(true).to({ x: params }, 500)
+			.onStart(() => started++)
+			.onUpdate(() => updated++)
+			.onKilled(() => killed++)
+			.onComplete(() => completed++);
 	});
 
 	// Use that on a sprite
 	const sprite: any = GetSprite('testAnimation');
-	const anim = animatorPlugin.AnimatorManager.AddAnimatorTo(sprite)
-		.AddAnimation('moveRight', 'move', { group: 'move' }, 5)
-		.AddAnimation('moveLeft', 'move', { group: 'move' }, -5)
-		.AddAnimation('blink', 'blink', { finalValue: true})
-		.AddAnimation('blinkSkipable', 'blink');
+	const anim = animatorPlugin.animatorManager.addAnimatorTo(sprite)
+		.addAnimation('moveRight', 'move', { group: 'move' }, 5)
+		.addAnimation('moveLeft', 'move', { group: 'move' }, -5)
+		.addAnimation('blink', 'blink', { finalValue: true})
+		.addAnimation('blinkSkipable', 'blink');
 
-	t.throws(() => anim.AddAnimation('test', 'shouldcrash'));
+	t.throws(() => anim.addAnimation('test', 'shouldcrash'));
 
 	// Use it
-	anim.Play('moveLeft');
-	Fatina.Update(100);
+	anim.play('moveLeft');
+	Fatina.update(100);
 
-	sprite.Animator.Play('moveRight');
-	Fatina.Update(100);
+	sprite.Animator.play('moveRight');
+	Fatina.update(100);
 
-	sprite.Animator.Stop();
-	sprite.Animator.Play('moveLeft');
+	sprite.Animator.stop();
+	sprite.Animator.play('moveLeft');
 
-	Fatina.Update(100);
+	Fatina.update(100);
 
-	sprite.Animator.Play('moveLeft');
+	sprite.Animator.play('moveLeft');
 
-	Fatina.Update(100);
+	Fatina.update(100);
 
-	sprite.Animator.Stop();
-	sprite.Animator.Play('moveLeft');
+	sprite.Animator.stop();
+	sprite.Animator.play('moveLeft');
 
-	Fatina.Update(600);
+	Fatina.update(600);
 
 	t.equal(started, 5, 'check 4 move tween were started');
 	t.equal(killed, 0, 'check no tween were killed');
 	t.equal(completed, 5, 'check the were all completed');
 	t.equal(sprite.position.x, -7, 'check the final position');
 
-	t.throws(() => anim.Play('unknown'));
-	anim.StopAll();
+	t.throws(() => anim.play('unknown'));
+	anim.stopAll();
 
 	t.end();
 });
 
 test('[Fatina.Animator] Default Test', (t: Test) => {
 	const sprite: any = GetSprite('testFinalValues');
-	const anim = animatorPlugin.AnimatorManager.AddAnimatorTo(sprite)
-		.AddCustomAnimation('test', undefined, Fatina.Tween(sprite.position, ['x']).To({ x: 1}, 500));
+	const anim = animatorPlugin.animatorManager.addAnimatorTo(sprite)
+		.addCustomAnimation('test', undefined, Fatina.tween(sprite.position, ['x']).to({ x: 1}, 500));
 
-	anim.Play('test');
-	Fatina.Update(50);
-	anim.Pause();
-	anim.Resume();
-	Fatina.Update(50);
-	anim.Stop();
+	anim.play('test');
+	Fatina.update(50);
+	anim.pause();
+	anim.resume();
+	Fatina.update(50);
+	anim.stop();
 
 	t.equal(sprite.position.x, 0.2);
 	t.end();
@@ -127,22 +127,22 @@ test('[Fatina.Animator] Default Test', (t: Test) => {
 
 test('[Fatina.Animator] Test final values', (t: Test) => {
 	const sprite: any = GetSprite('testFinalValues');
-	const anim = animatorPlugin.AnimatorManager.AddAnimatorTo(sprite)
-		.AddAnimation('blink', 'blink')
-		.AddAnimation('fadeIn', 'fade', { finalValue: true}, 1)
-		.AddAnimation('fadeOut', 'fade', { finalValue: true}, 0);
+	const anim = animatorPlugin.animatorManager.addAnimatorTo(sprite)
+		.addAnimation('blink', 'blink')
+		.addAnimation('fadeIn', 'fade', { finalValue: true}, 1)
+		.addAnimation('fadeOut', 'fade', { finalValue: true}, 0);
 
-	anim.Play('fadeOut');
-	Fatina.Update(50);
-	anim.Play('fadeIn');
-	Fatina.Update(50);
-	anim.Stop();
+	anim.play('fadeOut');
+	Fatina.update(50);
+	anim.play('fadeIn');
+	Fatina.update(50);
+	anim.stop();
 
 	t.equal(sprite.alpha, 1);
 
-	anim.Play('blink');
-	Fatina.Update(50);
-	anim.Stop();
+	anim.play('blink');
+	Fatina.update(50);
+	anim.stop();
 
 	t.equal(sprite.alpha, 0.5);
 
@@ -151,36 +151,36 @@ test('[Fatina.Animator] Test final values', (t: Test) => {
 
 test('[Fatina.Animator] Test Animator label', (t: Test) => {
 	const sprite: any = GetSprite('testAnimatorLabel');
-	const anim = animatorPlugin.AnimatorManager.AddAnimatorTo(sprite)
-		.AddAnimation('moveRight', 'move', { group: 'move' }, 5)
-		.AddAnimation('moveLeft', 'move', { group: 'move' }, -5)
-		.AddAnimation('fadeIn', 'fade', { finalValue: true, group: 'alpha' }, 1)
-		.AddAnimation('fadeOut', 'fade', { finalValue: true, group: 'alpha' }, 0);
+	const anim = animatorPlugin.animatorManager.addAnimatorTo(sprite)
+		.addAnimation('moveRight', 'move', { group: 'move' }, 5)
+		.addAnimation('moveLeft', 'move', { group: 'move' }, -5)
+		.addAnimation('fadeIn', 'fade', { finalValue: true, group: 'alpha' }, 1)
+		.addAnimation('fadeOut', 'fade', { finalValue: true, group: 'alpha' }, 0);
 
-	anim.Play('fadeOut');
-	anim.Play('moveRight');
-	Fatina.Update(125);
+	anim.play('fadeOut');
+	anim.play('moveRight');
+	Fatina.update(125);
 
 	t.equal(sprite.alpha, 0.25);
 	t.equal(sprite.position.x, 1.25);
 
-	anim.Pause('alpha');
-	Fatina.Update(125);
+	anim.pause('alpha');
+	Fatina.update(125);
 
 	t.equal(sprite.alpha, 0.25);
 	t.equal(sprite.position.x, 2.5);
 
-	anim.Resume('alpha');
-	Fatina.Update(25);
-	anim.PauseAll();
-	Fatina.Update(100);
-	anim.ResumeAll();
-	Fatina.Update(100);
+	anim.resume('alpha');
+	Fatina.update(25);
+	anim.pauseAll();
+	Fatina.update(100);
+	anim.resumeAll();
+	Fatina.update(100);
 
 	t.equal(sprite.alpha, 0);
 	t.equal(sprite.position.x, 3.75);
 
-	anim.Destroy();
+	anim.destroy();
 
 	t.end();
 });
@@ -188,43 +188,43 @@ test('[Fatina.Animator] Test Animator label', (t: Test) => {
 test('[Fatina.Animator] Test TickManager label', (t: Test) => {
 	const sprite1: any = GetSprite('testLabel');
 	const sprite2: any = GetSprite('testLabel');
-	const anim1 = animatorPlugin.AnimatorManager.AddAnimatorTo(sprite1)
-		.AddAnimation('moveRight', 'move', { group: 'move' }, 5)
-		.AddAnimation('moveLeft', 'move', { group: 'move' }, -5)
-		.AddAnimation('fadeIn', 'fade', { finalValue: true, group: 'alpha' }, 1)
-		.AddAnimation('fadeOut', 'fade', { finalValue: true, group: 'alpha' }, 0);
-	const anim2 = animatorPlugin.AnimatorManager.AddAnimatorTo(sprite2)
-		.AddAnimation('moveRight', 'move', { group: 'move' }, 5)
-		.AddAnimation('moveLeft', 'move', { group: 'move' }, -5)
-		.AddAnimation('fadeIn', 'fade', { finalValue: true, group: 'alpha' }, 1)
-		.AddAnimation('fadeOut', 'fade', { finalValue: true, group: 'alpha' }, 0);
+	const anim1 = animatorPlugin.animatorManager.addAnimatorTo(sprite1)
+		.addAnimation('moveRight', 'move', { group: 'move' }, 5)
+		.addAnimation('moveLeft', 'move', { group: 'move' }, -5)
+		.addAnimation('fadeIn', 'fade', { finalValue: true, group: 'alpha' }, 1)
+		.addAnimation('fadeOut', 'fade', { finalValue: true, group: 'alpha' }, 0);
+	const anim2 = animatorPlugin.animatorManager.addAnimatorTo(sprite2)
+		.addAnimation('moveRight', 'move', { group: 'move' }, 5)
+		.addAnimation('moveLeft', 'move', { group: 'move' }, -5)
+		.addAnimation('fadeIn', 'fade', { finalValue: true, group: 'alpha' }, 1)
+		.addAnimation('fadeOut', 'fade', { finalValue: true, group: 'alpha' }, 0);
 
-	anim1.Play('fadeOut');
-	anim1.Play('moveLeft');
-	anim2.Play('fadeOut');
-	anim2.Play('moveRight');
+	anim1.play('fadeOut');
+	anim1.play('moveLeft');
+	anim2.play('fadeOut');
+	anim2.play('moveRight');
 
-	Fatina.Update(50);
+	Fatina.update(50);
 
-	animatorPlugin.TickerManager.PauseAll('alpha');
+	animatorPlugin.tickerManager.pauseAll('alpha');
 
-	Fatina.Update(50);
+	Fatina.update(50);
 
 	t.equal(sprite1.alpha, 0.64);
 	t.equal(sprite2.alpha, 0.64);
 	t.equal(sprite1.position.x, -1);
 	t.equal(sprite2.position.x, 1);
 
-	animatorPlugin.TickerManager.ResumeAll('alpha');
-	Fatina.Update(50);
+	animatorPlugin.tickerManager.resumeAll('alpha');
+	Fatina.update(50);
 
 	t.equal(sprite1.alpha, 0.36);
 	t.equal(sprite2.alpha, 0.36);
 	t.equal(sprite1.position.x, -1.5);
 	t.equal(sprite2.position.x, 1.5);
 
-	animatorPlugin.TickerManager.KillAll('alpha');
-	Fatina.Update(50);
+	animatorPlugin.tickerManager.killAll('alpha');
+	Fatina.update(50);
 
 	t.equal(sprite1.alpha, 0.36);
 	t.equal(sprite2.alpha, 0.36);
@@ -240,24 +240,24 @@ test('[Fatina.Animator] Test Double Animation', (t: Test) => {
 	let killed = 0;
 	let completed = 0;
 
-	animatorPlugin.AnimatorManager.Register('move', (obj: any, params: any) => {
-		return Fatina.Tween(obj.position, ['x']).SetRelative(true).To({ x: params }, 500)
-			.OnStart(() => started++)
-			.OnUpdate(() => updated++)
-			.OnKilled(() => killed++)
-			.OnComplete(() => completed++);
+	animatorPlugin.animatorManager.register('move', (obj: any, params: any) => {
+		return Fatina.tween(obj.position, ['x']).setRelative(true).to({ x: params }, 500)
+			.onStart(() => started++)
+			.onUpdate(() => updated++)
+			.onKilled(() => killed++)
+			.onComplete(() => completed++);
 	});
 
 	const sprite1: any = GetSprite('testDouble');
-	const anim1 = animatorPlugin.AnimatorManager.AddAnimatorTo(sprite1)
-		.AddAnimation('moveRight', 'move', { group: 'move' }, 5)
-		.AddAnimation('moveLeft', 'move', { group: 'move' }, -5);
+	const anim1 = animatorPlugin.animatorManager.addAnimatorTo(sprite1)
+		.addAnimation('moveRight', 'move', { group: 'move' }, 5)
+		.addAnimation('moveLeft', 'move', { group: 'move' }, -5);
 
-	anim1.Play('moveLeft');
-	Fatina.Update(50);
-	anim1.Play('moveLeft');
-	Fatina.Update(500);
-	Fatina.Update(1);
+	anim1.play('moveLeft');
+	Fatina.update(50);
+	anim1.play('moveLeft');
+	Fatina.update(500);
+	Fatina.update(1);
 
 	t.equal(started, 2);
 	t.equal(killed, 0);
@@ -269,34 +269,34 @@ test('[Fatina.Animator] Test Double Animation', (t: Test) => {
 });
 
 test('[Fatina.Animator] Test Transition', (t: Test) => {
-	animatorPlugin.AnimatorManager.Register('move', (obj: any, params: any) => {
-		return Fatina.Tween(obj.position, ['x']).SetRelative(true).To({ x: params }, 500);
+	animatorPlugin.animatorManager.register('move', (obj: any, params: any) => {
+		return Fatina.tween(obj.position, ['x']).setRelative(true).to({ x: params }, 500);
 	}, 'newTicker');
 
 	const sprite1: any = GetSprite('testTransition');
-	const anim1 = animatorPlugin.AnimatorManager.AddAnimatorTo(sprite1)
-		.AddAnimation('moveRight', 'move', { group: 'move', next: 'moveLeft' }, 5)
-		.AddAnimation('moveLeft', 'move', { group: 'move' }, -5)
-		.OnStartAll('moveRight', () => console.log('right start', sprite1.position))
-		.OnCompleteAll('moveRight', () => console.log('right complete', sprite1.position))
-		.OnStartAll('moveLeft', () => console.log('left start', sprite1.position))
-		.OnCompleteAll('moveLeft', () => console.log('left complete', sprite1.position));
+	const anim1 = animatorPlugin.animatorManager.addAnimatorTo(sprite1)
+		.addAnimation('moveRight', 'move', { group: 'move', next: 'moveLeft' }, 5)
+		.addAnimation('moveLeft', 'move', { group: 'move' }, -5)
+		.onStartAll('moveRight', () => console.log('right start', sprite1.position))
+		.onCompleteAll('moveRight', () => console.log('right complete', sprite1.position))
+		.onStartAll('moveLeft', () => console.log('left start', sprite1.position))
+		.onCompleteAll('moveLeft', () => console.log('left complete', sprite1.position));
 
-	anim1.Play('moveRight');
-	Fatina.Update(50);
+	anim1.play('moveRight');
+	Fatina.update(50);
 	t.notEqual(sprite1.position.x, 0);
-	Fatina.Update(500);
+	Fatina.update(500);
 	t.equal(sprite1.position.x, 5)
 
-	Fatina.Update(500);
+	Fatina.update(500);
 	t.equal(sprite1.position.x, 0, 'check the final position');
 
 	t.end();
 });
 
 test('[Fatina.Animator] Add Callback', (t: Test) => {
-	animatorPlugin.AnimatorManager.Register('move', (obj: any, params: any) => {
-		return Fatina.Tween(obj.position, ['x']).SetRelative(true).To({ x: params }, 500);
+	animatorPlugin.animatorManager.register('move', (obj: any, params: any) => {
+		return Fatina.tween(obj.position, ['x']).setRelative(true).to({ x: params }, 500);
 	});
 
 	let onStartRight = 0;
@@ -305,35 +305,35 @@ test('[Fatina.Animator] Add Callback', (t: Test) => {
 	let onCompleteRight = 0;
 	let onCompleteRightOnce = 0;
 	const sprite1: any = GetSprite('testCallback');
-	const anim1 = animatorPlugin.AnimatorManager.AddAnimatorTo(sprite1)
-		.AddAnimation('moveRight', 'move', { group: 'move' }, 5)
-		.AddAnimation('moveLeft', 'move', { group: 'move' }, -5)
-		.OnStartAll('moveRight', () => onStartRight++)
-		.OnStartAll('moveRight', () => onStartRight++)
-		.OnStart('moveRight', () => onStartRightOnce++)
-		.OnStart('moveRight', () => onStartRightOnce++)
-		.OnCompleteAll('moveRight', () => onCompleteRight++)
-		.OnCompleteAll('moveRight', () => onCompleteRight++)
-		.OnComplete('moveRight', () => {
+	const anim1 = animatorPlugin.animatorManager.addAnimatorTo(sprite1)
+		.addAnimation('moveRight', 'move', { group: 'move' }, 5)
+		.addAnimation('moveLeft', 'move', { group: 'move' }, -5)
+		.onStartAll('moveRight', () => onStartRight++)
+		.onStartAll('moveRight', () => onStartRight++)
+		.onStart('moveRight', () => onStartRightOnce++)
+		.onStart('moveRight', () => onStartRightOnce++)
+		.onCompleteAll('moveRight', () => onCompleteRight++)
+		.onCompleteAll('moveRight', () => onCompleteRight++)
+		.onComplete('moveRight', () => {
 			throw new Error();
 		})
-		.OnComplete('moveRight', () => onCompleteRightOnce++)
-		.OnComplete('moveRight', () => onCompleteRightOnce++)
+		.onComplete('moveRight', () => onCompleteRightOnce++)
+		.onComplete('moveRight', () => onCompleteRightOnce++)
 
-	anim1.Play('moveRight', () => onCompleteInline++);
-	Fatina.Update(50);
+	anim1.play('moveRight', () => onCompleteInline++);
+	Fatina.update(50);
 	t.equal(onStartRight, 2);
 	t.equal(onStartRightOnce, 2);
 
-	Fatina.Update(500);
+	Fatina.update(500);
 	t.equal(onStartRight, 2);
 	t.equal(onStartRightOnce, 2);
 	t.equal(onCompleteInline, 1);
 	t.equal(onCompleteRight, 2);
 	t.equal(onCompleteRightOnce, 2);
 
-	anim1.Play('moveRight');
-	Fatina.Update(600);
+	anim1.play('moveRight');
+	Fatina.update(600);
 
 	t.equal(onStartRight, 4);
 	t.equal(onStartRightOnce, 2);
@@ -341,9 +341,9 @@ test('[Fatina.Animator] Add Callback', (t: Test) => {
 	t.equal(onCompleteRight, 4);
 	t.equal(onCompleteRightOnce, 2);
 
-	anim1.Play('moveRight', () => onCompleteInline++);
-	Fatina.Update(300);
-	anim1.Destroy();
+	anim1.play('moveRight', () => onCompleteInline++);
+	Fatina.update(300);
+	anim1.destroy();
 	t.equal(onCompleteInline, 2);
 
 	t.end();
