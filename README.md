@@ -9,7 +9,7 @@ Small & Light tweening library for **Games** / **Web**
 
 [![NPM Version](https://img.shields.io/npm/v/fatina-plugin-animator.svg)](https://npmjs.org/package/fatina-plugin-animator)
 [![NPM Downloads](https://img.shields.io/npm/dm/fatina-plugin-animator.svg)](https://npmjs.org/package/fatina-plugin-animator)
-[![Build Status](https://img.shields.io/travis/kefniark/Fatina-Plugin-Animator.svg)](https://travis-ci.org/kefniark/Fatina-Plugin-Animator)
+[![Build Status](https://img.shields.io/travis/kefniark/Fatina-Plugin-Animator/master.svg)](https://travis-ci.org/kefniark/Fatina-Plugin-Animator)
 [![Coverage Status](https://coveralls.io/repos/github/kefniark/Fatina-Plugin-Animator/badge.svg?branch=master)](https://coveralls.io/github/kefniark/Fatina-Plugin-Animator?branch=master)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/d829934eb7014fd191c0777ecfe11acd)](https://www.codacy.com/app/kefniark/Fatina-Plugin-Animator?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=kefniark/Fatina-Plugin-Animator&amp;utm_campaign=Badge_Grade)
 [![License](https://img.shields.io/npm/l/fatina-plugin-animator.svg)](https://npmjs.org/package/fatina-plugin-animator)
