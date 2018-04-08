@@ -1,4 +1,4 @@
-import { IControl} from 'fatina';
+import { IControl } from 'fatina';
 import { Animator } from '../animator/animator';
 import { FatinaPluginAnimator } from '../index';
 
@@ -9,9 +9,9 @@ import { FatinaPluginAnimator } from '../index';
  * @class AnimatorManager
  */
 export class AnimatorManager {
-	private plugin: FatinaPluginAnimator;
-	private anims: { [id: string]: (object: any, params?: any) => IControl; } = {};
-	private tickerMap: { [id: string]: string; } = {};
+	private readonly plugin: FatinaPluginAnimator;
+	private readonly anims: { [id: string]: (object: any, params?: any) => IControl; } = {};
+	private readonly tickerMap: { [id: string]: string; } = {};
 
 	public get animations(): string[] {
 		return Object.keys(this.anims);

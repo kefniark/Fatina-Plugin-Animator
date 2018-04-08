@@ -1,7 +1,7 @@
 {
   "name": "fatina-plugin-animator",
   "description": "Fatina plugin to manage animations for 2d library like Pixi.js, Phaser, ...",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "homepage": "https://kefniark.github.io/Fatina-Plugin-Animator/",
   "main": "build/fatina-plugin-animator.min.js",
   "types": "build/fatina-plugin-animator.d.ts",
@@ -44,7 +44,7 @@
     "clean:coverage": "rimraf \"./coverage\" && rimraf \"./.nyc_output\"",
     "reset": "rimraf \"./node_modules\"",
     "test": "run-s test:**",
-    "test:lint": "tslint --project tsconfig.json './src/**/*.ts' 'tests/**/*.ts'",
+    "test:lint": "tslint --project tsconfig.json \"./src/**/*.ts\" \"tests/**/*.ts\"",
     "test:unittest": "ts-node node_modules/tape/bin/tape ./tests/**/*.ts | tspec",
     "docs": "typedoc --out ./docs ./src/",
     "coverage": "nyc --all --reporter=html --reporter=text npm run test:unittest",
