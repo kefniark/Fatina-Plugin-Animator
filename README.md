@@ -46,8 +46,8 @@ import * as FatinaPluginAnimator from 'fatina-plugin-animator';
 
 and initialize (add this plugin to **Fatina**)
 ```ts
-Fatina.Init();
-Fatina.LoadPlugin(FatinaPluginAnimator.Get());
+Fatina.init();
+Fatina.loadPlugin(FatinaPluginAnimator.get());
 ```
 
 * [Documentation](https://kefniark.github.io/Fatina/plugins/animator-api/)
