@@ -36,14 +36,14 @@ test ('[Fatina.animator] Register new animations', (t: Test) => {
 		.register('move', (obj: any) => Fatina.tween(obj, ['x']).to({ x: 2 }, 500))
 		.register('jump', (obj: any) => {
 			return Fatina.sequence()
-				.append(Fatina.tween(obj.position, ['y']).setRelative(true).to({y: 5}, 200).setEasing('inQuad'))
-				.append(Fatina.tween(obj.position, ['y']).to({y: 0}, 200).setEasing('outQuad'));
+				.append(Fatina.tween(obj.position, ['y']).setRelative(true).to({ y: 5 }, 200).setEasing('inQuad'))
+				.append(Fatina.tween(obj.position, ['y']).to({ y: 0 }, 200).setEasing('outQuad'));
 			})
 		.register('blink', (obj: any) => {
-			return Fatina.tween(obj, ['alpha']).to({alpha: 0}, 100).yoyo(3).setEasing('inOutSine');
+			return Fatina.tween(obj, ['alpha']).to({ alpha: 0 }, 100).yoyo(3).setEasing('inOutSine');
 		}, 'alpha')
 		.register('fade', (obj: any, params: any) => {
-			return Fatina.tween(obj, ['alpha']).to({alpha: params}, 250).setEasing('outQuad');
+			return Fatina.tween(obj, ['alpha']).to({ alpha: params }, 250).setEasing('outQuad');
 		}, 'alpha');
 
 	t.equal(animatorPlugin.animatorManager.animations.length, 4, 'check all the animations are registered');
@@ -72,7 +72,7 @@ test('[Fatina.animator] Use animation', (t: Test) => {
 	const anim = animatorPlugin.animatorManager.addAnimatorTo(sprite)
 		.addAnimation('moveRight', 'move', { group: 'move' }, 5)
 		.addAnimation('moveLeft', 'move', { group: 'move' }, -5)
-		.addAnimation('blink', 'blink', { finalValue: true})
+		.addAnimation('blink', 'blink', { finalValue: true })
 		.addAnimation('blinkSkipable', 'blink');
 
 	t.throws(() => anim.addAnimation('test', 'shouldcrash'));
@@ -112,7 +112,7 @@ test('[Fatina.animator] Use animation', (t: Test) => {
 test('[Fatina.animator] Default Test', (t: Test) => {
 	const sprite: any = GetSprite('testFinalValues');
 	const anim = animatorPlugin.animatorManager.addAnimatorTo(sprite)
-		.addCustomAnimation('test', undefined, Fatina.tween(sprite.position, ['x']).to({ x: 1}, 500));
+		.addCustomAnimation('test', undefined, Fatina.tween(sprite.position, ['x']).to({ x: 1 }, 500));
 
 	anim.play('test');
 	Fatina.update(50);
@@ -129,8 +129,8 @@ test('[Fatina.animator] Test final values', (t: Test) => {
 	const sprite: any = GetSprite('testFinalValues');
 	const anim = animatorPlugin.animatorManager.addAnimatorTo(sprite)
 		.addAnimation('blink', 'blink')
-		.addAnimation('fadeIn', 'fade', { finalValue: true}, 1)
-		.addAnimation('fadeOut', 'fade', { finalValue: true}, 0);
+		.addAnimation('fadeIn', 'fade', { finalValue: true }, 1)
+		.addAnimation('fadeOut', 'fade', { finalValue: true }, 0);
 
 	anim.play('fadeOut');
 	Fatina.update(50);
@@ -286,7 +286,7 @@ test('[Fatina.animator] Test Transition', (t: Test) => {
 	Fatina.update(50);
 	t.notEqual(sprite1.position.x, 0);
 	Fatina.update(500);
-	t.equal(sprite1.position.x, 5)
+	t.equal(sprite1.position.x, 5);
 
 	Fatina.update(500);
 	t.equal(sprite1.position.x, 0, 'check the final position');
@@ -318,7 +318,7 @@ test('[Fatina.animator] Add Callback', (t: Test) => {
 			throw new Error();
 		})
 		.onComplete('moveRight', () => onCompleteRightOnce++)
-		.onComplete('moveRight', () => onCompleteRightOnce++)
+		.onComplete('moveRight', () => onCompleteRightOnce++);
 
 	anim1.play('moveRight', () => onCompleteInline++);
 	Fatina.update(50);

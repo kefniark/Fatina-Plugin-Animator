@@ -1,11 +1,11 @@
-import { IControl} from 'fatina';
+import { IControl } from 'fatina';
 import { AnimatorManager } from '../manager/animatorManager';
 
 export interface IAnimationParams {
 	group?: string;
 	unstoppable?: boolean;
 	finalValue?: boolean;
-	next?: string
+	next?: string;
 }
 
 /**
@@ -22,19 +22,19 @@ export class Animator {
 	public groups = ['default'];
 
 	// private properties
-	private object: any;
+	private readonly object: any;
 	private currentAnimName: { [id: string]: string } = {};
-	private animatorManager: AnimatorManager;
+	private readonly animatorManager: AnimatorManager;
 	private animGroupMap: { [id: string]: string } = {};
-	private animTransitionMap: { [id: string]: string } = {};
+	private readonly animTransitionMap: { [id: string]: string } = {};
 	private animFinalValueMap: { [id: string]: boolean } = {};
 	private animUnstoppableMap: { [id: string]: boolean } = {};
 
 	// events
-	private eventStart: { [id: string]: {(): void}[] } = {};
-	private eventOnceStart: { [id: string]: {(): void}[] } = {};
-	private eventComplete: { [id: string]: {(): void}[] } = {};
-	private eventOnceComplete: { [id: string]: {(): void}[] } = {};
+	private readonly eventStart: { [id: string]: {(): void}[] } = {};
+	private readonly eventOnceStart: { [id: string]: {(): void}[] } = {};
+	private readonly eventComplete: { [id: string]: {(): void}[] } = {};
+	private readonly eventOnceComplete: { [id: string]: {(): void}[] } = {};
 
 	constructor(obj: any, animatorManager: AnimatorManager) {
 		this.object = obj;
@@ -71,16 +71,16 @@ export class Animator {
 		anim.onStart(() => {
 			this.emitEvent(this.eventStart[name]);
 			if (name in this.eventOnceStart) {
-				this.emitEvent(this.eventOnceStart[name])
+				this.emitEvent(this.eventOnceStart[name]);
 				this.eventOnceStart[name] = [];
 			}
 		});
 
 		anim.onKilled(() => {
 			anim.recycle();
-			this.emitEvent(this.eventComplete[name])
+			this.emitEvent(this.eventComplete[name]);
 			if (name in this.eventOnceComplete) {
-				this.emitEvent(this.eventOnceComplete[name])
+				this.emitEvent(this.eventOnceComplete[name]);
 				this.eventOnceComplete[name] = [];
 			}
 		});
@@ -88,9 +88,9 @@ export class Animator {
 		anim.onComplete(() => {
 			anim.recycle();
 
-			this.emitEvent(this.eventComplete[name])
+			this.emitEvent(this.eventComplete[name]);
 			if (name in this.eventOnceComplete) {
-				this.emitEvent(this.eventOnceComplete[name])
+				this.emitEvent(this.eventOnceComplete[name]);
 				this.eventOnceComplete[name] = [];
 			}
 
@@ -127,8 +127,8 @@ export class Animator {
 			return;
 		}
 
-		for (let i = 0; i < listeners.length; i++) {
-			this.emit(listeners[i], args);
+		for (const listener of listeners) {
+			this.emit(listener, args);
 		}
 	}
 

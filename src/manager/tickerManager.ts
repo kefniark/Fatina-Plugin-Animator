@@ -8,8 +8,8 @@ import { IPluginAnimator } from '../index';
  * @class TickerManager
  */
 export class TickerManager {
-	private plugin: IPluginAnimator;
-	private tickers: { [id: string]: ITicker } = {};
+	private readonly plugin: IPluginAnimator;
+	private readonly tickers: { [id: string]: ITicker } = {};
 
 	constructor(plugin: IPluginAnimator) {
 		this.plugin = plugin;
@@ -21,7 +21,7 @@ export class TickerManager {
 		}
 
 		this.tickers[name] = (this.plugin as any).fatina.ticker();
-		return this.tickers[name]
+		return this.tickers[name];
 	}
 
 	public pauseAll(name: string): void {
