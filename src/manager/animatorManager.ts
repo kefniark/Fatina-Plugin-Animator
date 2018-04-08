@@ -68,9 +68,9 @@ export class AnimatorManager {
 	 * @memberOf AnimatorManager
 	 */
 	public addAnimatorTo(obj: any): Animator {
-		if (!obj.Animator) {
-			obj.Animator = new Animator(obj, this);
+		if (!obj.animator) {
+			obj.animator = new Animator(obj, this);
 		}
-		return obj.Animator;
+		return obj.animator;
 	}
 }

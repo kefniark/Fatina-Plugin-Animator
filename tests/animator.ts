@@ -13,7 +13,7 @@ function GetSprite(id: string): any {
 	return { name: id, position: { x: 0, y: 0 }, alpha: 1 };
 }
 
-test('[Fatina.Animator] Test Init', (t: Test) => {
+test('[Fatina.animator] Test Init', (t: Test) => {
 	const fatinaObj: any = {
 		plugin: {}
 	};
@@ -30,7 +30,7 @@ test('[Fatina.Animator] Test Init', (t: Test) => {
 	t.end();
 });
 
-test ('[Fatina.Animator] Register new animations', (t: Test) => {
+test ('[Fatina.animator] Register new animations', (t: Test) => {
 	// Register animations
 	animatorPlugin.animatorManager
 		.register('move', (obj: any) => Fatina.tween(obj, ['x']).to({ x: 2 }, 500))
@@ -52,7 +52,7 @@ test ('[Fatina.Animator] Register new animations', (t: Test) => {
 	t.end();
 });
 
-test('[Fatina.Animator] Use animation', (t: Test) => {
+test('[Fatina.animator] Use animation', (t: Test) => {
 	let started = 0;
 	let updated = 0;
 	let killed = 0;
@@ -81,20 +81,20 @@ test('[Fatina.Animator] Use animation', (t: Test) => {
 	anim.play('moveLeft');
 	Fatina.update(100);
 
-	sprite.Animator.play('moveRight');
+	sprite.animator.play('moveRight');
 	Fatina.update(100);
 
-	sprite.Animator.stop();
-	sprite.Animator.play('moveLeft');
-
-	Fatina.update(100);
-
-	sprite.Animator.play('moveLeft');
+	sprite.animator.stop();
+	sprite.animator.play('moveLeft');
 
 	Fatina.update(100);
 
-	sprite.Animator.stop();
-	sprite.Animator.play('moveLeft');
+	sprite.animator.play('moveLeft');
+
+	Fatina.update(100);
+
+	sprite.animator.stop();
+	sprite.animator.play('moveLeft');
 
 	Fatina.update(600);
 
@@ -109,7 +109,7 @@ test('[Fatina.Animator] Use animation', (t: Test) => {
 	t.end();
 });
 
-test('[Fatina.Animator] Default Test', (t: Test) => {
+test('[Fatina.animator] Default Test', (t: Test) => {
 	const sprite: any = GetSprite('testFinalValues');
 	const anim = animatorPlugin.animatorManager.addAnimatorTo(sprite)
 		.addCustomAnimation('test', undefined, Fatina.tween(sprite.position, ['x']).to({ x: 1}, 500));
@@ -125,7 +125,7 @@ test('[Fatina.Animator] Default Test', (t: Test) => {
 	t.end();
 });
 
-test('[Fatina.Animator] Test final values', (t: Test) => {
+test('[Fatina.animator] Test final values', (t: Test) => {
 	const sprite: any = GetSprite('testFinalValues');
 	const anim = animatorPlugin.animatorManager.addAnimatorTo(sprite)
 		.addAnimation('blink', 'blink')
@@ -149,7 +149,7 @@ test('[Fatina.Animator] Test final values', (t: Test) => {
 	t.end();
 });
 
-test('[Fatina.Animator] Test Animator label', (t: Test) => {
+test('[Fatina.animator] Test Animator label', (t: Test) => {
 	const sprite: any = GetSprite('testAnimatorLabel');
 	const anim = animatorPlugin.animatorManager.addAnimatorTo(sprite)
 		.addAnimation('moveRight', 'move', { group: 'move' }, 5)
@@ -185,7 +185,7 @@ test('[Fatina.Animator] Test Animator label', (t: Test) => {
 	t.end();
 });
 
-test('[Fatina.Animator] Test TickManager label', (t: Test) => {
+test('[Fatina.animator] Test TickManager label', (t: Test) => {
 	const sprite1: any = GetSprite('testLabel');
 	const sprite2: any = GetSprite('testLabel');
 	const anim1 = animatorPlugin.animatorManager.addAnimatorTo(sprite1)
@@ -234,7 +234,7 @@ test('[Fatina.Animator] Test TickManager label', (t: Test) => {
 	t.end();
 });
 
-test('[Fatina.Animator] Test Double Animation', (t: Test) => {
+test('[Fatina.animator] Test Double Animation', (t: Test) => {
 	let started = 0;
 	let updated = 0;
 	let killed = 0;
@@ -268,7 +268,7 @@ test('[Fatina.Animator] Test Double Animation', (t: Test) => {
 	t.end();
 });
 
-test('[Fatina.Animator] Test Transition', (t: Test) => {
+test('[Fatina.animator] Test Transition', (t: Test) => {
 	animatorPlugin.animatorManager.register('move', (obj: any, params: any) => {
 		return Fatina.tween(obj.position, ['x']).setRelative(true).to({ x: params }, 500);
 	}, 'newTicker');
@@ -294,7 +294,7 @@ test('[Fatina.Animator] Test Transition', (t: Test) => {
 	t.end();
 });
 
-test('[Fatina.Animator] Add Callback', (t: Test) => {
+test('[Fatina.animator] Add Callback', (t: Test) => {
 	animatorPlugin.animatorManager.register('move', (obj: any, params: any) => {
 		return Fatina.tween(obj.position, ['x']).setRelative(true).to({ x: params }, 500);
 	});

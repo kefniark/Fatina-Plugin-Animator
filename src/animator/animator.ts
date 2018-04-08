@@ -274,6 +274,6 @@ export class Animator {
 		this.animUnstoppableMap = {};
 		this.current = {};
 		this.currentAnimName = {};
-		delete this.object.Animator;
+		delete this.object.animator;
 	}
 }
